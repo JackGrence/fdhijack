@@ -1,4 +1,4 @@
-CROSS_COMPILE = arm-linux-
+CROSS_COMPILE =
 CC = $(CROSS_COMPILE)gcc
 
 LINUX_DEBUG = false
@@ -16,7 +16,7 @@ CFLAGS_fdhj.o += -I$(PWD)/../../inc
 export CFLAGS_fdhj.o
 
 default:
-	$(MAKE) ARCH=arm CROSS_COMPILE=arm-linux- -C $(KDIR) O=$(KOUT) M=$(PWD) modules
+	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 clean:
 	rm -rf *.ko *.o *.mod.* *.symvers *.c~ .mod* .fdhj* .test* .tmp* modules.order
 cleantmp:
