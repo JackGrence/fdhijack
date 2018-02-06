@@ -10,7 +10,7 @@
 
 int main(int argc, const char *argv[])
 {
-	if (argc < 4)
+	if (argc < 5)
 	{
 		printf("Usage: %s <pid> <fd> <file path> [keep mode: 0 | 1]\n"
 			   "       keep mode: do not exit after change fds, this can provide the opportunity\n"
@@ -24,10 +24,11 @@ int main(int argc, const char *argv[])
 
 	pid_t pid = atoi(argv[1]);
 	int fd = atoi(argv[2]); 
-	int fd_new = 0; 
+    pid_t pid2 = atoi(argv[3]);
+	int fd2 = atoi(argv[4]); 
 	int keep = 0;
-	if (argc > 4)
-		keep = atoi(argv[4]);
+	if (argc > 5)
+		keep = atoi(argv[5]);
 	if (keep)
 		printf("Keep mode = 1, just press enter to exchange the fd again.\n"
 			   "Enter \"exit\" to exit\n");
@@ -36,21 +37,8 @@ int main(int argc, const char *argv[])
 
 	try
 	{
-		fd_new = fdhj_open_file(argv[3], pid, fd);
-	}
-	catch
-	{
-		exit_code = pceherr(ceh_ex_info);
-		goto out1;
-	}
-	end_try
-
-	try
-	{
-		fdhj_fcntlset(fd_new, F_SETOWN, pid, fd);
-		fdhj_fcntlset(fd_new, F_SETSIG, pid, fd); 
 		do {
-			fdhj_exchange_fd(pid, fd, getpid(), fd_new);
+			fdhj_exchange_fd(pid, fd, pid2, fd2);
 			if (keep)
 				ret = fgets(buf, sizeof(buf), stdin);
 		} while (keep && ret && strcmp(ret, "exit"));
@@ -61,8 +49,6 @@ int main(int argc, const char *argv[])
 	}
 	end_try
 
-out:
-	close(fd_new); 
 out1:
 	fdhj_close_dev();
 
