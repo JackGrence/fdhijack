@@ -12,9 +12,7 @@ int main(int argc, const char *argv[])
 {
 	if (argc < 5)
 	{
-		printf("Usage: %s <pid> <fd> <file path> [keep mode: 0 | 1]\n"
-			   "       keep mode: do not exit after change fds, this can provide the opportunity\n"
-			   "                  to change back the fd afterward\n",
+		printf("Usage: %s <pid1> <fd1> <pid2> <fd2> [<pid3> <fd3>]\n",
 			   argv[0]);
 		return -1;
 	} 
@@ -26,22 +24,35 @@ int main(int argc, const char *argv[])
 	int fd = atoi(argv[2]); 
     pid_t pid2 = atoi(argv[3]);
 	int fd2 = atoi(argv[4]); 
-	int keep = 0;
-	if (argc > 5)
-		keep = atoi(argv[5]);
-	if (keep)
-		printf("Keep mode = 1, just press enter to exchange the fd again.\n"
-			   "Enter \"exit\" to exit\n");
-	char buf[sizeof("exit")];
-	char *ret;
+    pid_t pid3;
+    int fd3;
+	if (argc > 6)
+    {
+        pid3 = atoi(argv[5]);
+        fd3 = atoi(argv[6]);
+    }
+
+    if (!pid)
+    {
+        pid = getpid();
+        fd = open("/dev/null", O_RDWR);
+    }
+    if (!pid2)
+    {
+        pid2 = getpid();
+        fd2 = open("/dev/null", O_RDWR);
+    }
+    if (!pid3)
+    {
+        pid3 = getpid();
+        fd3 = open("/dev/null", O_RDWR);
+    }
 
 	try
 	{
-		do {
-			fdhj_exchange_fd(pid, fd, pid2, fd2);
-			if (keep)
-				ret = fgets(buf, sizeof(buf), stdin);
-		} while (keep && ret && strcmp(ret, "exit"));
+        fdhj_exchange_fd(pid, fd, pid2, fd2);
+        if (argc > 6)
+            fdhj_exchange_fd(pid3, fd3, pid2, fd2);
 	}
 	catch
 	{
